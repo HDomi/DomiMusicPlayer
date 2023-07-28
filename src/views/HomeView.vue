@@ -1,34 +1,30 @@
 <template>
-  <div class="wrap stars">
-    <div class="small"></div>
-    <div class="medium"></div>
-    <div class="big"></div>
-    <div class="controlBar-wrap">
+  <div class="wrap">
+    <youtube-media :video-id="videoId" @ready="ready" @playing="playing" @ended="change" :player-vars="{autoplay: 1}" style="position: absolute; left: -9999px; top: -9999px; width: 0; height: 0"></youtube-media>
+    <div class="main-sec">
       <div class="flux">Music Player</div>
-      <div class="description">유투브 영상 링크를 복사하여 노래추가하기를 통해 노래를 추가해 주세요.</div>
-      <div class="description">재생/일시정지를 임의로 조작하지 말아주세요..</div>
-      <youtube-media :video-id="videoId" @ready="ready" @playing="playing" @ended="change" :player-vars="{autoplay: 1}" style="position: absolute; left: -9999px; top: -9999px; width: 0; height: 0"></youtube-media>
-      <div class="playing-info-wrap">
-        <div v-if="nowSingTitle.length" class="play-title">{{ nowSingTitle }}</div>
-        <div v-else class="play-title">재생을 눌러주세요.</div>
-      </div>
-      <div class="btn-wrap">
-        <img v-if="isPlay" @click="pause" src="../assets/images/pause-white.png"/>
-        <img v-else @click="play" src="../assets/images/play-white.png"/>
-        <img @click="change" src="../assets/images/skip-white.png"/>
-      </div>
-    </div>
-    <!-- <div class="add-sing-wrap">
-      <span v-if="!isAddSing" @click="isAddSing = true">노래 추가하기</span>
-      <div v-if="isAddSing" class="add-sing-info">
-        <div class="set-info">
-          <input v-model="addSingTitle" placeholder="제목" type="text"/>
-          <input v-model="addSingLink" placeholder="링크" type="text" style="margin-top: 7px;"/>
+      <div class="cd-content">
+        <div class="cd-wrap">
+          <img class="cd" src="../assets/images/img_cd.svg" />
+          <div class="cd-cover">
+            <div v-if="nowSingTitle.length" class="play-title">{{ nowSingTitle }}</div>
+            <div v-else class="play-title">재생을 눌러주세요.</div>
+            <div class="control-btn-wrap">
+              <div class="button" @click="fetchList"><img src="../assets/images/refresh-w.png"  class="refresh"/></div>
+              <div class="button" v-if="isPlay" @click="pause"><img src="../assets/images/pause-white.png"/></div>
+              <div class="button" v-else @click="play"><img src="../assets/images/play-white.png"/></div>
+              <div class="button" @click="change"><img src="../assets/images/skip-white.png"/></div>
+            </div>
+            <div class="button big-button" style="" @click="openList">목록보기</div>
+          </div>
         </div>
-        <div class="add-btn" @click="addSing">+</div>
-      </div>
-    </div> -->
-    <div class="playList-wrap">
+      </div>    
+    </div>
+    <vue-bottom-sheet
+      ref="myBottomSheet"
+      class="music-bottom-sheet"
+      :is-full-screen="true"
+      >
       <div v-if="!Object.keys(playList).length" class="not-set-sing">추가된 노래가 없습니다!</div>
       <div class="playList-item" :class="{nowPlaying: getNowPlay(item.link)}" v-for="(item, key, index) in playList" :key="`play-${index}`">
         <div class="info-wrap" @click="onClickChange(item.link)">
@@ -36,15 +32,15 @@
           <div class="link">{{ item.link }}</div>
         </div>
         <div class="control-wrap">
-          <div v-if="getNowPlay(item.link) && isPlay" @click="pause" class="btn">
+          <div v-if="getNowPlay(item.link)" class="btn">
             <img src="../assets/images/pause.svg"/>
           </div>
-          <div v-else class="btn" @click="deleteItem(key)">
-            <div class="delete">-</div>
+          <div v-else class="button" @click="deleteItem(key)">
+            -
           </div>
         </div>
       </div>
-    </div>
+    </vue-bottom-sheet>
   </div>
 </template>
 
@@ -52,14 +48,16 @@
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, get, child, set} from "firebase/database";
 import firebaseConfig from '../config/firebaseConfig'
+import MakeToast from "../utils/MakeToast";
+import VueBottomSheet from "@webzlodimir/vue-bottom-sheet";
 export default {
   name: "HomeView",
   components: {
+    VueBottomSheet
   },
   data() {
     return {
       isPlay: false,
-      isAddSing: false,
       initializeApp: null,
       musicDataOnWeb: {},
       playList: {},
@@ -97,7 +95,7 @@ export default {
       this.nowSingTitle = playingData.title;
       this.setPlayNameForDatabase();
       console.log('@@@@@@@@@@@@',event);
-      console.log('노래가 재생됩니다.\n', this.nowSingTitle);
+      MakeToast(this, `'노래가 재생됩니다.\n', ${this.nowSingTitle}`, 'success', 1200);
     },
 
     async change () { //노래바꾸기
@@ -123,6 +121,13 @@ export default {
     pause () { //일시정지
       this.setPlayStatusForDatabase(false);
       this.player.pauseVideo();
+    },
+
+    openList() {
+      this.$refs.myBottomSheet.open();
+    },
+    closeList() {
+      this.$refs.myBottomSheet.close();
     },
 
     setPlayStatusForDatabase (status) {
@@ -184,25 +189,9 @@ export default {
       this.videoId = this.getCode(item);
     },
 
-    addSing() { //리스트에 아이템 추가
-      this.fetchUpdate(true);
-      this.addSingTitle = this.addSingLink = '';
-      this.isAddSing = false;
-    },
-
     deleteItem (key) { //리스트에서 아이템 삭제
-      this.fetchUpdate(false, key);
-    },
-
-    fetchUpdate (isAdd, key) {
       const db = getDatabase();
-      const nowDate = new Date();
-      const timeStamp = nowDate.getTime();
-      if(isAdd){
-        set(ref(db, `DomiMusic/MusicList/${timeStamp}-${this.addSingTitle}/`), {link: this.addSingLink});
-      }else{
-        set(ref(db, `DomiMusic/MusicList/${key}/`), {});
-      }
+      set(ref(db, `DomiMusic/MusicList/${key}/`), {});
       this.fetchList();
     },
 
@@ -214,7 +203,7 @@ export default {
           this.playList = this.musicDataOnWeb;
           console.log('FETCH DATA\n', this.playList);
         } else {
-          console.log("No data available");
+          MakeToast(this, '데이터가 없습니다.', 'warning', 1200);
         }
       }).catch((error) => {
         console.error(error);
@@ -238,147 +227,29 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import url(../assets/styles/stars.css);
+  @keyframes rotate_image{
+    100% {
+      transform: rotate(360deg);
+    }
+  }
   @font-face {
     font-family: neon;
     src: url(../assets/fonts/neon.ttf);
   }
-  .wrap{
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
-  .controlBar-wrap{
-    width: 100%;
-    height: 150px;
-    box-shadow: 0 14px 28px rgba(255,255,255,0.01), 0 10px 10px rgba(255,255,255,0.02);
-    background: rgb(32, 32, 36);
-    align-items: center;
-    justify-content: center;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    .playing-info-wrap{
-      .play-title{
-        font-size: 23px;
-        font-weight: bold;
-      }
-    }
-    .description{
-      font-size: 13px;
-    }
-    .flux {
-      position: absolute;
-      top: 10px;
-      left: 15px;
-      font-family: neon;
-      color: rgb(107, 176, 255);
-      font-size: 21px;
-      text-shadow: 0 0 1px rgb(60, 150, 253);
-    }
-    .flux {
-        animation: flux 3s linear infinite;
-        -moz-animation: flux 3s linear infinite;
-        -webkit-animation: flux 3s linear infinite;
-        -o-animation: flux 3s linear infinite;
-    }
-    @keyframes flux {
-        0%,
-        100% {
-          text-shadow: 0 0 1vw #1041FF, 0 0 3vw #1041FF, 0 0 10vw #1041FF, 0 0 10vw #1041FF, 0 0 .4vw #8BFDFE, .5vw .5vw .1vw #147280;
-          color: #28D7FE;
-        }
-        50% {
-          text-shadow: 0 0 .5vw #082180, 0 0 1.5vw #082180, 0 0 5vw #082180, 0 0 5vw #082180, 0 0 .2vw #082180, .5vw .5vw .1vw #0A3940;
-          color: #146C80;
-        }
-    }
-    .btn-wrap{
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      width: 70px;
-      height: 40px;
-      margin-top: 20px;
-      img{
-        width: 20px;
-        height: auto;
-        cursor: pointer;
-      }
-    }
-  }
-  .add-sing-wrap{
-    width: 100%;
-    min-height: 50px;
-    margin: 20px 0;
-    padding: 13px 30px;
-    background: rgba(187, 187, 187, 0.13);
-    border: 1px solid #fff;
-    span{
-      cursor: pointer;
-      font-size: 17px;
-      font-weight: bold;
-    }
-    .add-sing-info{
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      .set-info{
-        display: flex;
-        flex-direction: column;
-        height: 100px;
-        width: calc(100% - 96px);
-        input{
-          width: 100%;
-          height: 40px;
-          padding: 0 12px;
-          background: rgba(248, 248, 248, 0.682);
-          &::placeholder{
-            color: #000;
-          }
-          &:focus{
-            outline: none !important;
-            border-color: rgb(107, 176, 255);
-            box-shadow: 0 0 10px rgb(60, 150, 253);
-          }
-        }
-      }
-      .add-btn{
-        color: #000;
-        cursor: pointer;
-        background: #fff;
-        text-align: center;
-        border-radius: 10px;
-        width: 40px;
-        height: 40px;
-        color: #000;
-        line-height: 30px;
-        font-weight: bold;
-        font-size: 40px;
-      }
-    }
-  }
-  .playList-wrap{
-    width: 100%;
-    height: 100%;
-    padding: 0 30px;
-    .nowPlaying{
-      background: rgba(80, 162, 255, 0.53)!important;
-    }
+  .music-bottom-sheet {
+    overflow-y: auto;
     .playList-item{
-      border: 1px solid #fff;
-      cursor: pointer;
-      background: rgba(234, 234, 234, 0.053);
-      margin-top: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      cursor: auto;
       display: flex;
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
       height: 100px;
       padding: 0 30px;
-      border-radius: 15px;
+      &.nowPlaying{
+        background: rgba(222, 76, 75, 0.53)!important;
+      }
       .info-wrap{
         text-align: left;
         .name{
@@ -412,6 +283,173 @@ export default {
             font-weight: bold;
             font-size: 40px;
             
+          }
+        }
+      }
+    }
+  }
+  .wrap {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    .add-sing-dialog-wrap {
+      z-index: 99999;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .add-sing-dialog {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-radius: 15px;
+        background: linear-gradient(124deg, rgba(56,54,75,1) 0%, rgba(27,24,41,1) 100%);
+        width: 600px;
+        min-height: 500px;
+        position: relative;
+        padding: 60px 15px 15px 15px;
+        .close {
+          position: absolute;
+          top: 15px;
+          right: 15px;
+        }
+        .set-info-wrap {
+          .numbering {
+            min-width: max-content;
+            font-size: 14px;
+            margin-right: 7px;
+          }
+          .set-info {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            &:last-child {
+              margin-bottom: 0px;
+            }
+            input[type="text"] {
+              width: 100%;
+              height: 40px;
+              padding: 0 12px;
+              background: rgba(248, 248, 248, 0.682);
+              &::placeholder{
+                color: #000;
+              }
+              &:focus{
+                outline: none !important;
+                border-color: rgb(107, 176, 255);
+                box-shadow: 0 0 10px rgb(60, 150, 253);
+              }
+            }
+            .delete-item {
+              height: 30px;
+              min-width: 30px;
+              margin-left: 7px;
+              font-size: 16px;
+              background: #fff;
+              color: #333;
+            }
+          }
+          .addArrBtn {
+            width: 100%;
+            font-size: 14px;
+            line-height: 40px;
+            margin-top: 12px;
+          }
+        }
+      }
+    }
+    .main-sec {
+      background: rgba(32, 32, 36, 0.45);
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      .flux {
+        margin-top: 20px;
+        margin-bottom: 30px;
+        font-family: neon;
+        color: #be2264;
+        font-size: 31px;
+        margin-bottom: 10px;
+        text-shadow: 0 0 1px #de4c4b;
+        animation: flux 3s linear infinite;
+          -moz-animation: flux 3s linear infinite;
+          -webkit-animation: flux 3s linear infinite;
+          -o-animation: flux 3s linear infinite;
+      }
+      @keyframes flux {
+          0%,
+          100% {
+            text-shadow: 0 0 1vw #be2264, 0 0 3vw #be2264, 0 0 10vw #be2264, 0 0 10vw #be2264, 0 0 .4vw #ff3288, .5vw .5vw .1vw #ff3288;
+            color: #ff3a79;
+          }
+          50% {
+            text-shadow: 0 0 .5vw #de4c4b, 0 0 1.5vw #de4c4b, 0 0 5vw #de4c4b, 0 0 5vw #de4c4b, 0 0 .2vw #de4c4b, .5vw .5vw .1vw #5b1616;
+            color: #de4c4b;
+          }
+      }
+      .cd-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 80%;
+        height: 100%;
+        .cd-wrap {
+          position: relative;
+          padding: 20px;
+          width: 100%;
+          max-width: 600px;
+          .cd {
+            width: 100%;
+            animation: rotate_image 6s linear infinite;
+            transform-origin: 50% 50%;
+          }
+          .cd-cover {
+            position: absolute;
+            padding: 10px;
+            bottom: 0;
+            width: 100%;
+            left: 0;
+            right: 0;
+            height: 40%;
+            backdrop-filter: blur(15px);
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px 5px 15px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-direction: column;
+            .description{
+              font-size: 15px;
+              word-break: keep-all;
+            }
+            .control-btn-wrap {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              .button {
+                margin-right: 10px;
+                &:last-child {
+                  margin-right: 0;
+                }
+              }
+              .refresh{
+                width: 25px;
+                height: 25px;
+                cursor: pointer;
+              }
+            }
           }
         }
       }
