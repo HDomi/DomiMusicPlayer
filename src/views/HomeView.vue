@@ -490,6 +490,25 @@ export default {
     }
   }
   @media (max-width: 450px) {
+    .cd-content {
+      .cd-wrap {
+        .cd {
+        }
+        .cd-cover {
+          height: 60%!important;
+          .play-title {
+            width: 90%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .description{
+            font-size: 15px;
+            word-break: keep-all;
+          }
+        }
+      }
+    }
     .playList-wrap{
       .playList-item{
         .info-wrap{
