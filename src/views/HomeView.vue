@@ -222,16 +222,13 @@ export default {
       const enteredPassword = prompt('비밀번호를 입력하세요', '');
       if (enteredPassword === '0000') {
         localStorage.setItem('ISCHECKED', 'Check');
-        window.location.href = '/#';
       } else {
         localStorage.setItem('ISCHECKED', 'NoCheck');
-        window.location.href = '/#/addMusic';
+        this.$router.replace({name: 'addmusic'})
       }
     } else {
-      if (isChecked === 'Check') {
-        window.location.href = '/#';
-      } else {
-        window.location.href = '/#/addMusic';
+      if (isChecked !== 'Check') {
+        this.$router.replace({name: 'addmusic'})
       }
     }
   },
