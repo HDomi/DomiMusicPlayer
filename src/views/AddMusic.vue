@@ -16,7 +16,7 @@
         </div>
       </div>
       <div class="music-list">
-        <div class="flux">Music Player</div>
+        <div class="flux" @click="clearLocalStorage()">Music Player</div>
         <div v-if="!Object.keys(playList).length" class="not-set-sing">추가된 노래가 없습니다!</div>
         <div class="playList-item" :class="{nowPlaying: getNowPlay(item.link)}" v-for="(item, key, index) in playList" :key="`play-${index}`">
           <div class="info-wrap">
@@ -197,6 +197,9 @@
         await this.fetchMusicItem();
         await this.fetchNowPlayCode();
       },
+      clearLocalStorage () {
+        localStorage.removeItem('ISCHECKED');
+      }
     },
     
     async mounted() {

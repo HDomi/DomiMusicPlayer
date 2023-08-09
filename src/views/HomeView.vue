@@ -119,6 +119,7 @@ export default {
     },
 
     pause () { //일시정지
+      MakeToast(this, '노래 일시정지', 'success', 1200);
       this.setPlayStatusForDatabase(false);
       this.player.pauseVideo();
     },
@@ -215,7 +216,25 @@ export default {
       await this.fetchStatus();
     },
   },
-  
+  beforeMount () {
+    const isChecked = localStorage.getItem('ISCHECKED');
+    if (!isChecked) {
+      const enteredPassword = prompt('비밀번호를 입력하세요', '');
+      if (enteredPassword === '0000') {
+        localStorage.setItem('ISCHECKED', 'Check');
+        window.location.href = '/#';
+      } else {
+        localStorage.setItem('ISCHECKED', 'NoCheck');
+        window.location.href = '/#/addMusic';
+      }
+    } else {
+      if (isChecked === 'Check') {
+        window.location.href = '/#';
+      } else {
+        window.location.href = '/#/addMusic';
+      }
+    }
+  },
   async mounted() {
     this.initializeApp = initializeApp(firebaseConfig);
     await this.fetchList();
