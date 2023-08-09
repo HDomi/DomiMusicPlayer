@@ -301,6 +301,7 @@
       .music-list {
         overflow-y: auto;
         min-width: 400px;
+        max-width: 400px;
         height: 100%;
         border-right: 1px solid rgba(255,255,255,0.2);
         box-shadow: 0 14px 28px rgba(255,255,255,0.01), 0 10px 10px rgba(255,255,255,0.02);
@@ -352,6 +353,10 @@
               max-width: 250px;
             }
             .link{
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              max-width: 250px;
             }
           }
           .control-wrap{

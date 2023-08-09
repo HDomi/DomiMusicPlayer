@@ -277,6 +277,10 @@ export default {
           max-width: 250px;
         }
         .link{
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          max-width: 250px;
         }
       }
       .control-wrap{
