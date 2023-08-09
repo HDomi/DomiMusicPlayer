@@ -219,7 +219,7 @@ export default {
   beforeMount () {
     const isChecked = localStorage.getItem('ISCHECKED');
     if (!isChecked) {
-      const enteredPassword = prompt('비밀번호를 입력하세요', '');
+      const enteredPassword = prompt('비밀번호를 입력하세요.\n비밀번호를 틀릴경우 노래추가 페이지로 이동됩니다.', '');
       if (enteredPassword === '0000') {
         localStorage.setItem('ISCHECKED', 'Check');
       } else {

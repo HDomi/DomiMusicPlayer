@@ -199,6 +199,7 @@
       },
       clearLocalStorage () {
         localStorage.removeItem('ISCHECKED');
+        MakeToast(this, '체크데이터가 삭제되었습니다.', 'warning', 1200);
       }
     },
     
