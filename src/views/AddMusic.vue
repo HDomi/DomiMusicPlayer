@@ -22,6 +22,7 @@
           <div class="info-wrap">
             <div class="name">{{ getTitle(key) }}</div>
             <div class="link">{{ item.link }}</div>
+            <div class="date">{{ getAddTime(key) }}</div>
           </div>
           <div class="control-wrap">
             <div v-if="getNowPlay(item.link)" class="btn">
@@ -104,6 +105,14 @@
       getTitle (key) {
         return key.split('-').slice(1).join('-');
       },
+      getAddTime (key) {
+        const timeNumber = Number(key.split('-')[0]);
+        const convertTimeStamp = new Date(timeNumber);
+       
+        return  `추가된 시간: 
+        ${(convertTimeStamp.getMonth()+1)}월${convertTimeStamp.getDate()}일 
+        ${convertTimeStamp.getHours()}:${convertTimeStamp.getHours()}:${convertTimeStamp.getSeconds()}`;
+      },  
   
       fetchNowPlayCode () {
         const dbRef = ref(getDatabase(this.initializeApp));
@@ -353,6 +362,14 @@
               max-width: 250px;
             }
             .link{
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              max-width: 250px;
+            }
+            .date {
+              margin-top: 7px;
+              font-size: 13px;
               overflow: hidden;
               text-overflow: ellipsis;
               white-space: nowrap;
