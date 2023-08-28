@@ -157,6 +157,11 @@ export default {
     getCode (url) { //전체 링크에서 영상 코드만 추출
       let videoID = '';
       if (url.includes('youtu.be/')) {
+        if (url.includes('?si=')) {
+          const checkUrl = url.split('youtu.be/')[1];
+          videoID = checkUrl.split('?si=')[0];
+          return videoID;
+        }
         videoID = url.split('youtu.be/')[1];
       } else if (url.includes('youtube.com/watch?v=')) {
         videoID = url.split('youtube.com/watch?v=')[1];
@@ -167,7 +172,7 @@ export default {
       } 
       const ampersandPosition = videoID.indexOf('&');
       if (ampersandPosition !== -1) {
-        videoID = videoID.substring(0, ampersandPosition);
+        videoID = videoID.substring(0, ampersandPosition);  
       }
       return videoID;
     },
