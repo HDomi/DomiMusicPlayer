@@ -6,6 +6,7 @@
       <div class="cd-content">
         <div class="cd-wrap">
           <div class="cd">
+            <img src="../assets/images/img_record.png" />
             <div class="cd-inner" :style="{backgroundImage: `url(${thumnailImgUrl})`}"></div>
           </div>
           <div class="thumnailImg" :style="{backgroundImage: `url(${thumnailImgUrl})`}">
@@ -466,20 +467,23 @@ export default {
           max-width: 500px;
           .cd {
             width: 100%;
-            height: 500px;
+            height: 100%;
             animation: rotate_image 6s linear infinite;
             transform-origin: 50% 50%;
-            z-index: 998;
-            bottom: 250px;
+            z-index: 997;
+            top: -200px;
             position: absolute;
-            background-image: url(../assets/images/img_record.png);
-            background-position: center;
-            background-size: cover;
-            background-repeat: no-repeat;
             display: flex;
             align-items: center;
             justify-content: center;
+            img {
+              z-index: 998;
+              width: 100%;
+              position: absolute;
+            }
             .cd-inner {
+              z-index: 999;
+              position: absolute;
               border-radius: 100px;
               width: 160px;
               height: 160px;
@@ -489,8 +493,7 @@ export default {
             }
           }
           .thumnailImg {
-            width: 500px;
-            min-height: 500px;
+            min-height: 400px;
             position: relative;
             z-index: 99999;
             background-position: center;
