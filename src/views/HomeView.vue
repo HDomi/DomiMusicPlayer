@@ -66,7 +66,7 @@ export default {
       initializeApp: null,
       musicDataOnWeb: {},
       playList: {},
-      videoId: '1Kv1acrxfu0',
+      videoId: '',
       nowSingTitle: '',
       nowSingTime: '',
 
