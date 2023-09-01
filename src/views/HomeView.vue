@@ -1,6 +1,6 @@
 <template>
   <div class="wrap">
-    <!-- <youtube-media :video-id="videoId" @ready="ready" @playing="playing" @ended="change" :player-vars="{autoplay: 1}" style="position: absolute; left: -9999px; top: -9999px; width: 0; height: 0"></youtube-media> -->
+    <youtube-media :video-id="videoId" @ready="ready" @playing="playing" @ended="change" :player-vars="{autoplay: 1}" style="position: absolute; left: -9999px; top: -9999px; width: 0; height: 0"></youtube-media>
     <div class="main-sec">
       <div class="flux">Music Player</div>
       <div class="cd-content">
