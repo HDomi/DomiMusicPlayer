@@ -465,7 +465,7 @@
               width: 600px;
               height: 600px;
               position: relative;
-              z-index: 99999;
+              z-index: 9999;
               background-position: center;
               background-size: cover;
               background-repeat: no-repeat;
