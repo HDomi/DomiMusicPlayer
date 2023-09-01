@@ -1,21 +1,25 @@
 <template>
   <div class="wrap">
-    <youtube-media :video-id="videoId" @ready="ready" @playing="playing" @ended="change" :player-vars="{autoplay: 1}" style="position: absolute; left: -9999px; top: -9999px; width: 0; height: 0"></youtube-media>
+    <!-- <youtube-media :video-id="videoId" @ready="ready" @playing="playing" @ended="change" :player-vars="{autoplay: 1}" style="position: absolute; left: -9999px; top: -9999px; width: 0; height: 0"></youtube-media> -->
     <div class="main-sec">
       <div class="flux">Music Player</div>
       <div class="cd-content">
         <div class="cd-wrap">
-          <img class="cd" src="../assets/images/img_cd.svg" />
-          <div class="cd-cover">
-            <div v-if="nowSingTitle.length" class="play-title">{{ nowSingTitle }}</div>
+          <div class="cd">
+            <div class="cd-inner" :style="{backgroundImage: `url(${thumnailImgUrl})`}"></div>
+          </div>
+          <div class="thumnailImg" :style="{backgroundImage: `url(${thumnailImgUrl})`}">
+            <div class="cd-cover">
+              <div v-if="nowSingTitle.length" class="play-title">{{ nowSingTitle }}</div>
             <div v-else class="play-title">재생을 눌러주세요.</div>
             <div class="control-btn-wrap">
-              <div class="button" @click="fetchList"><img src="../assets/images/refresh-w.png"  class="refresh"/></div>
-              <div class="button" v-if="isPlay" @click="pause"><img src="../assets/images/pause-white.png"/></div>
-              <div class="button" v-else @click="play"><img src="../assets/images/play-white.png"/></div>
-              <div class="button" @click="change"><img src="../assets/images/skip-white.png"/></div>
+                <div class="button" @click="fetchList"><img src="../assets/images/refresh-w.png"  class="refresh"/></div>
+                <div class="button" v-if="isPlay" @click="pause"><img src="../assets/images/pause-white.png"/></div>
+                <div class="button" v-else @click="play"><img src="../assets/images/play-white.png"/></div>
+                <div class="button" @click="change"><img src="../assets/images/skip-white.png"/></div>
+              </div>
+              <div class="button big-button" style="" @click="openList">목록보기</div>
             </div>
-            <div class="button big-button" style="" @click="openList">목록보기</div>
           </div>
         </div>
       </div>    
@@ -29,7 +33,7 @@
       <div class="playList-item" :class="{nowPlaying: getNowPlay(item.link)}" v-for="(item, key, index) in playList" :key="`play-${index}`">
         <div class="info-wrap" @click="onClickChange(item.link)">
           <div class="name">{{ getTitle(key) }}</div>
-          <div class="link">{{ item.link }}</div>
+          <div class="link"><span>Code: </span>{{ getCode(item.link) }}</div>
           <div class="date">{{ getAddTime(key) }}</div>
         </div>
         <div class="control-wrap">
@@ -62,7 +66,7 @@ export default {
       initializeApp: null,
       musicDataOnWeb: {},
       playList: {},
-      videoId: '',
+      videoId: '1Kv1acrxfu0',
       nowSingTitle: '',
       nowSingTime: '',
 
@@ -78,6 +82,11 @@ export default {
       });
       return idList;
     },
+    thumnailImgUrl: {
+      get () {
+        return `https://img.youtube.com/vi/${this.videoId}/0.jpg`;
+      }
+    }
   },
    watch: {
     videoId () {
@@ -295,6 +304,10 @@ export default {
           text-overflow: ellipsis;
           white-space: nowrap;
           max-width: 250px;
+           span {
+              font-weight: 700;
+              color: #de4c4b;
+            }
         }
         .date {
           margin-top: 7px;
@@ -449,47 +462,74 @@ export default {
         height: 100%;
         .cd-wrap {
           position: relative;
-          padding: 20px;
           width: 100%;
-          max-width: 600px;
+          max-width: 500px;
           .cd {
             width: 100%;
+            height: 500px;
             animation: rotate_image 6s linear infinite;
             transform-origin: 50% 50%;
-          }
-          .cd-cover {
+            z-index: 998;
+            bottom: 250px;
             position: absolute;
-            padding: 10px;
-            bottom: 0;
-            width: 100%;
-            left: 0;
-            right: 0;
-            height: 40%;
-            backdrop-filter: blur(15px);
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 5px 5px 15px 15px;
+            background-image: url(../assets/images/img_record.png);
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
             display: flex;
             align-items: center;
-            justify-content: space-around;
-            flex-direction: column;
-            .description{
-              font-size: 15px;
-              word-break: keep-all;
+            justify-content: center;
+            .cd-inner {
+              border-radius: 100px;
+              width: 160px;
+              height: 160px;
+              background-position: center;
+              background-size: cover;
+              background-repeat: no-repeat;
             }
-            .control-btn-wrap {
+          }
+          .thumnailImg {
+            width: 500px;
+            min-height: 500px;
+            position: relative;
+            z-index: 99999;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            .cd-cover {
+              position: absolute;
+              padding: 10px;
+              bottom: 0;
+              width: 100%;
+              left: 0;
+              right: 0;
+              height: 40%;
+              backdrop-filter: blur(15px);
+              background: rgba(0, 0, 0, 0.4);
+              border-radius: 10px 10px 0px 0px;
               display: flex;
-              flex-direction: row;
               align-items: center;
-              .button {
-                margin-right: 10px;
-                &:last-child {
-                  margin-right: 0;
-                }
+              justify-content: space-around;
+              flex-direction: column;
+              .description{
+                font-size: 15px;
+                word-break: keep-all;
               }
-              .refresh{
-                width: 25px;
-                height: 25px;
-                cursor: pointer;
+              .control-btn-wrap {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                .button {
+                  margin-right: 10px;
+                  &:last-child {
+                    margin-right: 0;
+                  }
+                }
+                .refresh{
+                  width: 25px;
+                  height: 25px;
+                  cursor: pointer;
+                }
               }
             }
           }

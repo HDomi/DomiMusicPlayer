@@ -21,7 +21,7 @@
         <div class="playList-item" :class="{nowPlaying: getNowPlay(item.link)}" v-for="(item, key, index) in playList" :key="`play-${index}`">
           <div class="info-wrap">
             <div class="name">{{ getTitle(key) }}</div>
-            <div class="link">{{ item.link }}</div>
+            <div class="link"><span>Code: </span>{{ getCode(item.link) }}</div>
             <div class="date">{{ getAddTime(key) }}</div>
           </div>
           <div class="control-wrap">
@@ -37,12 +37,16 @@
       <div class="main-sec">
         <div class="cd-content">
           <div class="cd-wrap">
-            <img class="cd" src="../assets/images/img_cd.svg" />
-            <div class="cd-cover">
-              <div class="description">유투브 영상 링크를 복사하여 노래추가하기를 통해 노래를 추가해 주세요.<br/>추가하시기전에 한번씩 새로고침</div>
-              <div class="control-btn-wrap">
-                <div class="button" @click="openAddSing()">+</div>
-                <div class="button" @click="fetchList"><img src="../assets/images/refresh-w.png"  class="refresh"/></div>
+            <div class="cd">
+              <div class="cd-inner" :style="{backgroundImage: `url(${thumnailImgUrl})`}"></div>
+            </div>
+            <div class="thumnailImg" :style="{backgroundImage: `url(${thumnailImgUrl})`}">
+              <div class="cd-cover">
+                <div class="description">유투브 영상 링크를 복사하여 노래추가하기를 통해 노래를 추가해 주세요.<br/>추가하시기전에 한번씩 새로고침</div>
+                <div class="control-btn-wrap">
+                  <div class="button" @click="openAddSing()">+</div>
+                  <div class="button" @click="fetchList"><img src="../assets/images/refresh-w.png"  class="refresh"/></div>
+                </div>
               </div>
             </div>
           </div>
@@ -80,6 +84,11 @@
       addSingArrLength: {
         get () {
           return this.addSingArr.length < 7;
+        }
+      },
+      thumnailImgUrl: {
+        get () {
+          return `https://img.youtube.com/vi/${this.videoId}/0.jpg`;
         }
       }
     },
@@ -371,6 +380,10 @@
               text-overflow: ellipsis;
               white-space: nowrap;
               max-width: 250px;
+              span {
+                font-weight: 700;
+                color: #de4c4b;
+              }
             }
             .date {
               margin-top: 7px;
@@ -416,57 +429,84 @@
         justify-content: center;
         .cd-content {
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
           align-items: center;
           justify-content: center;
-          width: 80%;
+          width: 100%;
           height: 100%;
+          margin-left: 300px;
           .cd-wrap {
             position: relative;
-            padding: 20px;
-            width: 100%;
-            max-width: 600px;
             .cd {
-              width: 100%;
+              width: 600px;
+              height: 600px;
               animation: rotate_image 6s linear infinite;
               transform-origin: 50% 50%;
-            }
-            .cd-cover {
+              z-index: 998;
+              right: 300px;
               position: absolute;
-              padding: 10px;
-              bottom: 0;
-              width: 100%;
-              left: 0;
-              right: 0;
-              height: 40%;
-              backdrop-filter: blur(15px);
-              background: rgba(0, 0, 0, 0.5);
-              border-radius: 5px 5px 15px 15px;
+              background-image: url(../assets/images/img_record.png);
+              background-position: center;
+              background-size: cover;
+              background-repeat: no-repeat;
               display: flex;
               align-items: center;
-              justify-content: space-around;
-              flex-direction: column;
-              .description{
-                font-size: 15px;
-                word-break: keep-all;
+              justify-content: center;
+              .cd-inner {
+                border-radius: 100px;
+                width: 200px;
+                height: 200px;
+                background-position: center;
+                background-size: cover;
+                background-repeat: no-repeat;
               }
-              .control-btn-wrap {
+            }
+            .thumnailImg {
+              width: 600px;
+              height: 600px;
+              position: relative;
+              z-index: 99999;
+              background-position: center;
+              background-size: cover;
+              background-repeat: no-repeat;
+              .cd-cover {
+                position: absolute;
+                padding: 10px;
+                bottom: 0;
+                width: 100%;
+                left: 0;
+                right: 0;
+                height: 30%;
+                backdrop-filter: blur(15px);
+                background: rgba(0, 0, 0, 0.4);
+                border-radius: 10px 10px 0px 0px;
                 display: flex;
-                flex-direction: row;
                 align-items: center;
-                .button {
-                  margin-right: 10px;
-                  &:last-child {
-                    margin-right: 0;
-                  }
+                justify-content: space-around;
+                flex-direction: column;
+                .description{
+                  font-size: 15px;
+                  word-break: keep-all;
                 }
-                .refresh{
-                  width: 25px;
-                  height: 25px;
-                  cursor: pointer;
+                .control-btn-wrap {
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                  .button {
+                    margin-right: 10px;
+                    &:last-child {
+                      margin-right: 0;
+                    }
+                  }
+                  .refresh{
+                    width: 25px;
+                    height: 25px;
+                    cursor: pointer;
+                  }
                 }
               }
             }
+            
           }
         }
       }
