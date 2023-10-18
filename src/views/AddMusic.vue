@@ -178,6 +178,12 @@
           MakeToast(this, '완료되지 않은 리스트가 있습니다.', 'error', 1200);
           return;
         }
+        const linkArr = this.addSingArr.map((v) => v.link);
+        const newSetLinkArr = new Set(linkArr);
+        if (linkArr.length !== newSetLinkArr.size) {
+          MakeToast(this, '중복되는 링크가 있습니다.', 'error', 1200);
+          return;
+        }
         const db = getDatabase();
         this.addSingArr.forEach((v) => {
         const nowDate = new Date();
